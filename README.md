@@ -1,7 +1,7 @@
 # Chickeam-VOD Demo
 
 สิ่งที่จำเป็นสำหรับการรัน (Requirement)
-- Node.js
+- Node.js with Next.JS
 - PostgreSQL (Local)
 
 ## STEP 1 : Settings your database ตั้งค่าฐานข้อมูล
