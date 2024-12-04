@@ -1,9 +1,3 @@
-```
-รหัสนักศึกษา 65114540550
-นายวรวุฒิ แสงตะวัง
-worawut.sa.65@ubu.ac.th
-```
-
 # Chickeam-VOD Demo
 
 สิ่งที่จำเป็นสำหรับการรัน (Requirement)
@@ -29,9 +23,11 @@ npm install
 ```
 
 ## STEP 3 : Prisma Migrate Model ลงฐานข้อมูล
-เมื่อทุกอย่างพร้อมแล้วคุณก็สามารถ Migrate ลงฐานข้อมูลด้วยคำสั่งนี้
+เมื่อทุกอย่างพร้อมแล้วคุณก็สามารถ Migrate ลงฐานข้อมูลด้วยคำสั่งนี้ ตามด้วยการ import ข้อมูลโดยการใช้ไฟล์ xlsx
 ```
 npx prisma migrate dev --name init
+
+npm run xlsx_import
 ```
 
 ## STEP 4 : Run
