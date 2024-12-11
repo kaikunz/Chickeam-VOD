@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import Header from '@/components/header';
+import toast from "react-hot-toast";
+
 
 const VideoUploadForm: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
@@ -21,13 +23,37 @@ const VideoUploadForm: React.FC = () => {
       body: formData,
     });
 
+
+
+
     if (res.ok) {
         const responseData = await res.json();
+        const { slug, path, path2 } = responseData;
+
         const showplayer = document.getElementById("showplayer");
         if (showplayer) {
-            showplayer.innerHTML = `<iframe class="responsive-iframe" src="${responseData.path}" allow="fullscreen"></iframe>`;
+            showplayer.innerHTML = `<iframe class="responsive-iframe" src="${path}" allow="fullscreen"></iframe>`;
         }
-        console.log(responseData.path)
+
+        const videoData = {
+          title,
+          description,
+          thumbnail: "https://chickeam.com/nothumb.jpg",
+          type: 2,
+          price_rent: null,
+          price_sell: null,
+          slug: slug, 
+          path: path2,
+        };
+
+        const res2 = await fetch("/api/addvideo", {
+          method: "POST",
+          body: JSON.stringify(videoData),
+        });
+
+        if (res2.ok) {
+          toast.success("Video Added")
+        }
     }
 
   };
