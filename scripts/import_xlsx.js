@@ -47,6 +47,8 @@ async function importXlsx() {
             type: row.type || null,
             price_rent: row.price_rent ? parseFloat(row.price_rent) : null,
             price_sell: row.price_sell ? parseFloat(row.price_sell) : null,
+            slug: row.slug || null,
+            path: row.path || null,
             Love_count: row.Love_count ? parseInt(row.Love_count) : 0,
             OwnerUserID: user.id || null,
           },

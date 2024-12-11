@@ -37,6 +37,8 @@ model Video {
   price_rent    Float?
   price_sell    Float?
   Love_count    Int?
+  slug          String?  @unique
+  path          String?  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   OwnerUserID   String   @map("user_id")
