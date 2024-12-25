@@ -42,30 +42,22 @@ export default async function WatchVideos({ params }: VideoPage) {
   return (
     <>
 
-        <div className="mx-auto px-4 xl:max-w-7xl pt-[130px]">
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 <div className="col-span-2">
                     <div className="rounded-lg shadow">
                         <iframe className="w-full aspect-video rounded-lg" src={url}></iframe>
                     </div>
 
-                    <p className="text-xl mt-4 font-bold">{v.title}</p>
+                    <p className="text-3xl mt-4 font-bold">{v.title}</p>
 
                     <div className="mt-6 bg-gray-200 rounded-lg p-2">{v.description}</div>
 
                 </div>
 
-            
-
-                <div className="">
-
-                </div>
 
             </div>
 
-        </div>
 
     </>
   );

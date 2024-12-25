@@ -18,7 +18,6 @@ import {
 import {
   Bars3Icon,
   BellIcon,
-  CalendarIcon,
   Cog6ToothIcon,
   SignalIcon,
   HomeIcon,
@@ -27,7 +26,7 @@ import {
   TvIcon,
   FingerPrintIcon,
 } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
+import { ArrowUpTrayIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
 const navigation = [
   { name: 'หน้าหลัก', href: '/', icon: HomeIcon, current: false },
@@ -239,6 +238,11 @@ export default function Sidebar({ user }: { user: any }) {
               )}
               {user && (
               <div className="flex items-center gap-x-4 lg:gap-x-6">
+                <Link href="/selectup" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
+                  <span className="sr-only">View notifications</span>
+                  <ArrowUpTrayIcon aria-hidden="true" className="size-6" />
+                </Link>
+
                 <button type="button" className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500">
                   <span className="sr-only">View notifications</span>
                   <BellIcon aria-hidden="true" className="size-6" />
