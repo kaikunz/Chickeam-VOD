@@ -55,68 +55,72 @@ export const RegisterForm = () => {
   };
 
   const input_style =
-    "form-control block w-full px-4 py-5 text-sm font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none";
+    "form-control block w-full px-4 py-5 text-sm font-normal text-red-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-red-600 focus:outline-none";
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
       <div className="mb-6">
+        <p className="text-gray-600 mb-3">ชื่อ</p>
         <input
           {...register("name")}
-          placeholder="Name"
+          placeholder="ชื่อของคุณ"
           className={`${input_style}`}
         />
         {errors["name"] && (
-          <span className="text-red-500 text-xs pt-1 block">
+          <span className="text-red-500 text-xs mt-1 pt-1 block">
             {errors["name"]?.message as string}
           </span>
         )}
       </div>
       <div className="mb-6">
+        <p className="text-gray-600 mb-3">อีเมล</p>
         <input
           type="email"
           {...register("email")}
-          placeholder="Email address"
+          placeholder="อีเมลของคุณ"
           className={`${input_style}`}
         />
         {errors["email"] && (
-          <span className="text-red-500 text-xs pt-1 block">
+          <span className="text-red-500 text-xs mt-1 pt-1 block">
             {errors["email"]?.message as string}
           </span>
         )}
       </div>
       <div className="mb-6">
+        <p className="text-gray-600 mb-3">รหัสผ่าน</p>
         <input
           type="password"
           {...register("password")}
-          placeholder="Password"
+          placeholder="รหัสผ่านของคุณ"
           className={`${input_style}`}
         />
         {errors["password"] && (
-          <span className="text-red-500 text-xs pt-1 block">
+          <span className="text-red-500 text-xs mt-1 pt-1 block">
             {errors["password"]?.message as string}
           </span>
         )}
       </div>
       <div className="mb-6">
+        <p className="text-gray-600 mb-3">ยืนยันรหัสผ่าน</p>
         <input
           type="password"
           {...register("passwordConfirm")}
-          placeholder="Confirm Password"
+          placeholder="ยืนยันรหัสผ่านของคุณ"
           className={`${input_style}`}
         />
         {errors["passwordConfirm"] && (
-          <span className="text-red-500 text-xs pt-1 block">
+          <span className="text-red-500 text-xs mt-1 pt-1 block">
             {errors["passwordConfirm"]?.message as string}
           </span>
         )}
       </div>
       <button
         type="submit"
-        style={{ backgroundColor: `${submitting ? "#ccc" : "#3446eb"}` }}
-        className="inline-block px-7 py-4 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
+        style={{ backgroundColor: `${submitting ? "#780614" : "#ea1d36"}` }}
+        className="inline-block px-7 py-4 hover:text-black text-white text-lg font-bold leading-snug uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out w-full"
         disabled={submitting}
       >
-        {submitting ? "loading..." : "Sign Up"}
+        {submitting ? "สมัครสมาชิก..." : "สมัครสมาชิก"}
       </button>
     </form>
   );

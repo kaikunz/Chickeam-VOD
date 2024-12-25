@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import Header from '@/components/header';
 
 interface VideoPage {
   params: {
@@ -42,7 +41,6 @@ export default async function WatchVideos({ params }: VideoPage) {
 
   return (
     <>
-        <Header />
 
         <div className="mx-auto px-4 xl:max-w-7xl pt-[130px]">
 

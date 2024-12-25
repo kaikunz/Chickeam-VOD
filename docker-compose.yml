@@ -10,7 +10,7 @@ services:
       - /chickeam/node_modules
     environment:
       NODE_ENV: development
-      DATABASE_URL: "postgresql://postgres:password@db:5432/mydatabase?schema=public"
+      DATABASE_URL: "postgresql://postgres:password@db:5432/mydatabase"
     depends_on:
       - db
 

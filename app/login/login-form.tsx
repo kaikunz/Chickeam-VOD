@@ -1,7 +1,6 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -44,11 +43,11 @@ export const LoginForm = () => {
       setSubmitting(false);
 
       if (!res?.error) {
-        toast.success('successfully logged in');
+        toast.success('เข้าสู่ระบบสำเร็จ');
         router.push(callbackUrl);
       } else {
         reset({ password: '' });
-        const message = 'invalid email or password';
+        const message = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
         toast.error(message);
         setError(message);
       }
@@ -61,7 +60,7 @@ export const LoginForm = () => {
   };
 
   const input_style =
-    'form-control block w-full px-4 py-5 text-sm font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none';
+    'form-control block w-full px-4 py-5 text-sm font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-red-700 focus:bg-white focus:border-red-600 focus:outline-none';
 
   return (
     <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -69,38 +68,40 @@ export const LoginForm = () => {
         <p className='text-center bg-red-300 py-4 mb-6 rounded'>{error}</p>
       )}
       <div className='mb-6'>
+        <p className="text-gray-600 mb-3">อีเมล</p>
         <input
           type='email'
           {...register('email')}
-          placeholder='Email address'
+          placeholder='อีเมลล์ของคุณ'
           className={`${input_style}`}
         />
         {errors['email'] && (
-          <span className='text-red-500 text-xs pt-1 block'>
+          <span className='text-red-500 text-xs pt-1 block mt-1'>
             {errors['email']?.message as string}
           </span>
         )}
       </div>
       <div className='mb-6'>
+      <p className="text-gray-600 mb-3">รหัสผ่าน</p>
         <input
           type='password'
           {...register('password')}
-          placeholder='Password'
+          placeholder='รหัสผ่านของคุณ'
           className={`${input_style}`}
         />
         {errors['password'] && (
-          <span className='text-red-500 text-xs pt-1 block'>
+          <span className='text-red-500 text-xs pt-1 block mt-1'>
             {errors['password']?.message as string}
           </span>
         )}
       </div>
       <button
         type='submit'
-        style={{ backgroundColor: `${submitting ? '#ccc' : '#3446eb'}` }}
-        className='inline-block px-7 py-4 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full'
+        style={{ backgroundColor: `${submitting ? '#780614' : '#ea1d36'}`}}
+        className='inline-block px-7 py-4 hover:text-black text-white text-lg font-bold leading-snug uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out w-full'
         disabled={submitting}
       >
-        {submitting ? 'loading...' : 'Sign In'}
+        {submitting ? 'เข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
       </button>
 
     </form>

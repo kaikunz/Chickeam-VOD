@@ -1,8 +1,4 @@
 node_modules
-.pnp
-.pnp.js
-.yarn/install-state.gz
-coverage
 .next
 out
 build

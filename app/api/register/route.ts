@@ -29,7 +29,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           status: "error",
-          message: "Validation failed",
+          message: "กรอกไม่ถูกต้องตามแบบฟอร์ม",
           errors: error.errors,
         },
         { status: 400 }
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           status: "fail",
-          message: "user with that email already exists",
+          message: "อีเมลนี้มีผู้ใช้อยู่แล้ว",
         },
         { status: 409 }
       );

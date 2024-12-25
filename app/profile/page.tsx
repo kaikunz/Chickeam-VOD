@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import Header from "@/components/header";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
@@ -14,12 +13,11 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <Header />
       <section className="min-h-screen pt-20">
         <div className="max-w-4xl mx-auto bg-ct-dark-100 rounded-md h-[20rem] flex justify-center items-center">
           <div>
             <p className="mb-3 text-5xl text-center font-semibold">
-              Profile Page
+              โปรไฟล์ของคุณ
             </p>
             <div className="flex items-center gap-8">
               <div>

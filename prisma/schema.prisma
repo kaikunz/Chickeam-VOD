@@ -24,6 +24,9 @@ model User {
   accounts      Account[]
   sessions      Session[]
   video         Video[]
+  comment       Comment[]
+  post          Post[]
+  love_log      Love_log[]
 
   @@map("users")
 }
@@ -43,8 +46,59 @@ model Video {
   updatedAt     DateTime @updatedAt
   OwnerUserID   String   @map("user_id")
   user          User     @relation(fields: [OwnerUserID], references: [id], onDelete: Cascade)
+  comment       Comment[]
+  post          Post[]
+  love_log      Love_log[]
 
   @@map("videos")
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  comment     String?
+  userId      String   @map("user_id")
+  videoId     String   @map("video_id")
+  Love_count  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  love_log    Love_log[]
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String?
+  userId      String   @map("user_id")
+  videoId     String?  @map("video_id")
+  Love_count  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  love_log    Love_log[]
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
+
+  @@map("Posts")
+}
+
+model Love_log {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  videoId     String?  @map("video_id")
+  postId      String?  @map("post_id")
+  commentId   String?  @map("comment_id")
+  type        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  post     Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  comment     Comment?   @relation(fields: [commentId], references: [id], onDelete: SetNull)
 }
 
 model Account {

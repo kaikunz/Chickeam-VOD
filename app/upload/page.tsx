@@ -1,4 +1,3 @@
-import Header from '@/components/header';
 import VideoUploadForm from './upload-form';
 
 export default async function UploadPage() {
@@ -6,7 +5,6 @@ export default async function UploadPage() {
 
   return (
     <>
-      <Header />
 
       <section className='min-h-screen pt-20'>
         <div className='container mx-auto px-6 py-12 h-full flex justify-center items-center'>
