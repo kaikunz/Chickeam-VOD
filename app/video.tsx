@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { EyeIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon } from '@heroicons/react/24/solid';
 
 export const Fetchvideo = () => {
 
@@ -19,9 +20,9 @@ export const Fetchvideo = () => {
           <h1 className="mb-4 text-xl font-bold text-gray-700 ml-3">วิดีโอจากชุมชน</h1>
 
 
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-6 gap-y-6 relative px-1 md:px-4 ml-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 gap-y-6 relative px-1 md:px-4 ml-1">
             {videos.map((video: any) => (
-              <Link href={`/watch/${video.slug}`}>
+              <Link href={`/watch/${video.slug}`} className="relative hover:bg-gray-50">
                 <img src={video.thumbnail} className="bg-cover bg-center w-full aspect-video rounded-xl" />
                 <h2 className="my-2 text-lg font-semibold truncate">{video.title || 'Untitled'}</h2>
                 <div className="inline-flex items-start min-w-max rounded-lg mr-4">
@@ -38,6 +39,9 @@ export const Fetchvideo = () => {
     
                   </div>
                 </div>
+
+                {video.type == 2 ? <span className="absolute left-0 top-0 rounded-b-lg bg-red-500 text-white font-bold p-2"><LockClosedIcon className="w-5 stroke-4"/></span> : ""}
+
               </Link>
             ))}
           </div>

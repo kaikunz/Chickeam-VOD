@@ -41,6 +41,7 @@ export async function POST(req: Request) {
             slug,
             path,
             OwnerUserID: user.id,
+            Love_count: 0,
           },
         });
     

@@ -1,64 +1,51 @@
-import { Metadata } from 'next';
+import WatchVideos from './watchvideo';
 
-interface VideoPage {
-  params: {
-    slug: string;
-  };
-}
-
-export async function generateMetadata({ params }: VideoPage): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo?slug=${slug}`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo`, {
+    next: { revalidate: 0 },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      slug: slug,
+    }),
+  });
+
   if (!res.ok) {
     return {
-      title: 'Post Not Found',
-      description: 'The post you are looking for does not exist.',
+      title: 'Video Not Found',
+      description: 'The video you are looking for does not exist.',
     };
   }
 
-  const post = await res.json();
+  const video = await res.json();
   return {
-    title: post.title,
-    description: post.description || '.',
+    title: video.title,
+    description: video.description || '',
   };
 }
 
-export default async function WatchVideos({ params }: VideoPage) {
+export default async function VideoPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo?slug=${slug}`, {
-    next: { revalidate: 10 }, 
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo`, {
+    
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ slug }),
+    next: { revalidate: 0 },
   });
 
   if (!res.ok) {
     return <div>Video not found</div>;
   }
 
-  const v = await res.json();
-
-  const url = `https://chickeam.com/play?test=https://chickeam.com/temp/${v.path}/playlist.m3u8`;
-
-  return (
-    <>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                <div className="col-span-2">
-                    <div className="rounded-lg shadow">
-                        <iframe className="w-full aspect-video rounded-lg" src={url}></iframe>
-                    </div>
-
-                    <p className="text-3xl mt-4 font-bold">{v.title}</p>
-
-                    <div className="mt-6 bg-gray-200 rounded-lg p-2">{v.description}</div>
-
-                </div>
-
-
-            </div>
-
-
-    </>
-  );
+  const video = await res.json();
+  video.slugs = slug;
+  return <WatchVideos video={video} />;
 }

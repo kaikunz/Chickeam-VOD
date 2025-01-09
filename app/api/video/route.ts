@@ -28,13 +28,13 @@ function timeAgo(datetime: string | Date): string {
 
 function formatViewCount(count: number): string {
   if (count >= 1_000_000_000) {
-    return `${(count / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`; // แปลงเป็นหน่วยพันล้าน (B)
+    return `${(count / 1_000_000_000).toFixed(1).replace(/\.0$/, '')}B`;
   } else if (count >= 1_000_000) {
-    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`; // แปลงเป็นหน่วยล้าน (M)
+    return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`; 
   } else if (count >= 1_000) {
-    return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`; // แปลงเป็นหน่วยพัน (K)
+    return `${(count / 1_000).toFixed(1).replace(/\.0$/, '')}K`; 
   } else {
-    return count.toString(); // ค่าต่ำกว่า 1,000 แสดงเป็นตัวเลขปกติ
+    return count.toString(); 
   }
 }
 
