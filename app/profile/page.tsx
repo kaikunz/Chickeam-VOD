@@ -23,9 +23,8 @@ export default async function ProfilePage() {
                 />
               </div>
               <div className="mt-8">
-                <p className="mb-3">ID: {user?.id}</p>
-                <p className="mb-3">Name: {user?.name}</p>
-                <p className="mb-3">Email: {user?.email}</p>
+                <p className="mb-3">ชื่อ: {user?.name}</p>
+                <p className="mb-3">อีเมล: {user?.email}</p>
               </div>
             </div>
           </div>

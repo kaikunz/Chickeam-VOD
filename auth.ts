@@ -48,6 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name,
+          image: user.image,
           randomKey: 'Hey cool',
         };
       },
@@ -56,7 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const paths = ['/profile', '/client-side', '/upload', '/selectup'];
+      const paths = ['/profile', '/client-side', '/upload', '/selectup', '/editprofile'];
       const isProtected = paths.some((path) =>
         nextUrl.pathname.startsWith(path)
       );
@@ -71,6 +72,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt: ({ token, user }) => {
       if (user) {
         const u = user as unknown as any;
+        token.id = u.id;
+        token.name = u.name;
+        token.email = u.email;
+        token.image = u.image;
+
         return {
           ...token,
           id: u.id,

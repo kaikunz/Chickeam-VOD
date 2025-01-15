@@ -37,6 +37,7 @@ const navigation = [
 
 const userNavigation = [
     { name: 'โปรไฟล์ของคุณ', href: '/profile' },
+    { name: 'แก้ไขโปรไฟล์', href: '/editprofile' },
   ]
 
 function classNames(...classes: string[]) {
