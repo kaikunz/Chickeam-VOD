@@ -66,17 +66,21 @@ model Comment {
   id          String   @id @default(cuid())
   comment     String?
   userId      String   @map("user_id")
-  videoId     String   @map("video_id")
+  videoId     String?  @map("video_id")
+  postId      String?  @map("post_id")
+  type        Int?
   Love_count  Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   love_log    Love_log[]
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  post     Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
 
   @@map("comments")
 }
+
 
 model Post {
   id          String   @id @default(cuid())
@@ -87,6 +91,7 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   love_log    Love_log[]
+  comment     Comment[]
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)

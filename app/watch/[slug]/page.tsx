@@ -1,4 +1,5 @@
 import WatchVideos from './watchvideo';
+import { auth } from '@/auth';
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const { slug } = params;
@@ -30,7 +31,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function VideoPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-
+  const session = await auth();
+  const user = session?.user;
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo`, {
     
     method: "POST",
@@ -47,5 +49,5 @@ export default async function VideoPage({ params }: { params: { slug: string } }
 
   const video = await res.json();
   video.slugs = slug;
-  return <WatchVideos video={video} />;
+  return <WatchVideos user={user} video={video} />;
 }

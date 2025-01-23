@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter } from 'next/navigation'
-import { signOut } from '@/auth';
 
 export default function EditProfileForm({ user }: { user: any }) {
   const [name, Setname] = useState(user?.name || "");
