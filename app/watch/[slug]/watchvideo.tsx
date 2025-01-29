@@ -1,11 +1,16 @@
 "use client";
 
-import { ClockIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
-import { useRef, useEffect, useState } from "react";
+import { ClockIcon, ShoppingBagIcon, HeartIcon, FlagIcon } from '@heroicons/react/24/outline';
+import { useRef, useEffect, useState, Fragment } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { Dialog,Transition } from '@headlessui/react'
+import toast from 'react-hot-toast';
 
+interface LoveLog {
+  id: string;
+}
 
 interface WatchVideosProps {
     id: string;
@@ -15,6 +20,7 @@ interface WatchVideosProps {
     price_sell: number;
     path: string;
     type: number;
+    Love_count: number;
     user: {
       nickname: string;
       follower: number;
@@ -22,6 +28,7 @@ interface WatchVideosProps {
     };
     hasPurchased: boolean;
     slugs: string;
+    hasLoved:boolean;
 
 }
 interface User {
@@ -35,21 +42,24 @@ interface PostDetailProps {
   video: WatchVideosProps;
 }
 
-interface LoveLog {
-  id: string;
-}
+
 
 export default function WatchVideos({ user, video }: PostDetailProps) {
 
-    const [datav, setData] = useState<any>(null);
 
+    const [datav, setData] = useState<any>(null);
+    let [isOpen, setIsOpen] = useState(false)
     const router = useRouter();
 
     const [text, SetText] = useState("");
+    const [loveCount, setLoveCount] = useState<number>(video.Love_count || 0);
+    const [hasLoved, setHasLoved] = useState<boolean>(video.hasLoved);
     const [comment, setComment] = useState<Comment[]>([]);
     const [page, setPage] = useState(1); 
     const [hasMore, setHasMore] = useState(true); 
     const [loading, setLoading] = useState(false);
+    const [reason, setReason] = useState("copyright");
+
     
     const [isFetching, setIsFetching] = useState(false);
     const hasFetchedInitialData = useRef(false);
@@ -91,6 +101,42 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
         setComment((prevPosts) => [newPost, ...prevPosts]);
 
     }
+
+    const handleSendReport = async () => {
+      try {
+        const response = await axios.post("/api/sendreport", { id: video.id,reason: reason });
+     
+        setIsOpen(false)
+
+        if (response.status === 200) {
+            toast.success("รายงานสำเร็จ");
+        }
+
+        
+      } catch (error: any) {
+        if (error.response) {
+          toast.error(error.response.data.error);
+        } else {
+          console.error("Failed to send report:", error.message);
+        }
+      }
+    };
+
+    const handleLoveClick = async () => {
+      try {
+        const response = await axios.post("/api/addlove", { id: video.id,method: 4 });
+        const { type } = response.data;
+     
+    
+          setHasLoved(type === 1); 
+          setLoveCount((prev) => (type === 1 ? prev + 1 : prev - 1));
+
+        
+      } catch (error) {
+        console.error("Failed to update love count:", error);
+      }
+    };
+    
 
     const LoveClick = async (postId: string) => {
       try {
@@ -147,14 +193,14 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
           }
     
           const result = await res2.json();
-          console.log("API response:", result);
           setData(result);
+          setHasLoved(result.love_log.length > 0);
+          setLoveCount(result.Love_count);
         } catch (error: any) {
           console.error("Error in videotypeistwo:", error.message);
         }
       };
     
-      console.log("Props in WatchVideos:", video);
 
     const handleConfirmAndCallApi = async (action: "rent" | "buy") => {
         const actionText = action === "rent" ? "เช่า" : "ซื้อ";
@@ -300,6 +346,79 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
 
   return (
     <>
+  <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    รายงานวิดีโอ
+                  </Dialog.Title>
+                  <form>
+                  <div className="mt-2">
+                  <select onChange={(e) => setReason(e.target.value)} 
+                    required
+                    className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-red-300 border-gray-300"
+                  >
+                    <option disabled>เลือกเหตุผล</option>
+                    <option value="copyright">เนื้อหาละเมิดลิขสิทธิ์</option>
+                    <option value="violence">มีความรุนแรงหรือไม่เหมาะสม</option>
+                    <option value="porn">มีเนื้อหาลามกหรืออนาจาร</option>
+                    <option value="misleading">มีข้อมูลเท็จหรือบิดเบือน</option>
+                    <option value="hateSpeech">มีคำพูดสร้างความเกลียดชัง</option>
+                    <option value="privacy">มีการละเมิดความเป็นส่วนตัว</option>
+                    <option value="spam">มีพฤติกรรมหลอกลวงหรือสแปม</option>
+                  </select>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={handleSendReport}
+                    >
+                      รายงาน
+                    </button>
+                    <button
+                      type="button"
+                      className="ml-2 inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      ปิด
+                    </button>
+                  </div>
+                  </form>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-2">
 
@@ -348,10 +467,38 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
             </div>
         </div>
 
+        <div className="flex justify-end gap-2">
+
+        <button
+        onClick={handleLoveClick}
+        className={`inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold
+          ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 
+          ${hasLoved ? "text-red-600" : "text-gray-900"}`}
+      >
+        <HeartIcon className={`size-6 ${hasLoved ? "fill-red-600 text-red-600" : ""}`} />
+        <span className="mt-[2px] ml-[10px] text-lg">
+          {loveCount === 0 ? "รักเลย" : loveCount}
+        </span>
+      </button>
+      
+
+        <button onClick={() => setIsOpen(true)} className="inline-flex items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
+                    <FlagIcon className="size-6" />
+                    <span className="mt-[2px] ml-[12px] text-lg">รายงาน</span>
+        </button>
+
+        </div>
+
           <div className="mt-6 bg-gray-100 rounded-lg p-2">{video.description}</div>
 
-          <div className="p-2 px-4 mt-2">
-    <p className="text-lg font-bold">ความคิดเห็น</p>
+          
+
+        </div>
+
+        <div>
+
+        <div className="p-2">
+    <p className="text-xl font-bold">ความคิดเห็น</p>
 
     <div className="mt-4">
     <div>
@@ -483,6 +630,7 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     </div>
 
         </div>
+
       </div>
 
     </>

@@ -209,6 +209,67 @@ export async function POST(req: Request) {
           { status: 200, headers: { "Content-Type": "application/json" } }
         );
       }
+    } else if (method == 4) {
+      const existingLoveLog = await prisma.love_log.findFirst({
+        where: {
+          userId: user.id, 
+          videoId: id, 
+        },
+      });
+  
+      if (!existingLoveLog) {
+        const post = await prisma.video.update({
+          where: { id: id },
+          data: {
+            Love_count: {
+              increment: 1,
+            },
+          },
+        });
+      
+        await prisma.love_log.create({
+          data: {
+            userId: user.id,
+            videoId: id,
+            type: 2,
+          },
+        });
+        
+        const formattedPosts = {
+            ...post,
+            liked: 1, 
+        };
+  
+        return new Response(
+          JSON.stringify({ message: "Love added", type:1, post:formattedPosts }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      } else {
+        const post = await prisma.video.update({
+          where: { id: id },
+          data: {
+            Love_count: {
+              decrement: 1,
+            },
+          },
+        });
+      
+        await prisma.love_log.delete({
+          where: {
+            id: existingLoveLog.id,
+          },
+        });
+        
+        const formattedPosts = {
+          ...post,
+          liked: 2, 
+        };
+  
+        return new Response(
+          JSON.stringify({ message: "Love removed", type:2, post:formattedPosts }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
     }
   } catch (error) {
     console.error("Error processing purchase:", error);

@@ -1,4 +1,5 @@
 import prisma from "@/prisma/prisma";
+import { auth } from "@/auth";
 
 function timeAgo(datetime: string | Date): string {
   const date = typeof datetime === 'string' ? new Date(datetime) : datetime; // ตรวจสอบชนิดข้อมูล
@@ -40,6 +41,17 @@ function formatViewCount(count: number): string {
 
 
 export async function GET(req: Request) {
+
+const session = await auth();
+  const user = session?.user;
+  let userId;
+
+  if (!user) {
+    userId = "unknown";
+  } else {
+    userId = user.id;
+  }
+
   try {
     const videos = await prisma.video.findMany({
       select: {
@@ -57,6 +69,10 @@ export async function GET(req: Request) {
             name: true,
             image: true,
           },
+        },
+        love_log: {
+          where: { userId }, 
+          select: { id: true },
         },
       },
     });

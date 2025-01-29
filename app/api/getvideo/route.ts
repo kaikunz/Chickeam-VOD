@@ -6,11 +6,18 @@ export async function POST(req: Request) {
 
   const session = await auth();
   const user = session?.user;
+  let userId;
 
   try {
     const body = await req.json();
     const { slug } = body;
 
+    
+    if (!user) {
+      userId = "unknown";
+    } else {
+      userId = user.id;
+    }
 
     if (!slug) {
       return new Response(
@@ -25,6 +32,7 @@ export async function POST(req: Request) {
     
     let video;
     let hasPurchased = false;
+
     
 
     const videoTypeCheck = await prisma.video.findFirst({
@@ -63,6 +71,10 @@ export async function POST(req: Request) {
               image: true,
             },
           },
+          love_log: {
+            where: { userId }, 
+            select: { id: true },
+          },
         },
       });
 
@@ -82,6 +94,10 @@ export async function POST(req: Request) {
                 image: true,
               },
             },
+            love_log: {
+              where: { userId: user.id }, 
+              select: { id: true },
+            },
          
           },
         });
@@ -99,6 +115,7 @@ export async function POST(req: Request) {
                 price_rent: true,
                 price_sell: true,
                 type:true,
+                Love_count:true,
                 user: {
                   select: {
                     nickname: true,
@@ -106,6 +123,10 @@ export async function POST(req: Request) {
                     image: true,
                   },
                 },
+                love_log: {
+                  where: { userId: user.id }, 
+                  select: { id: true },
+                  },
 
               },
             });
@@ -121,6 +142,7 @@ export async function POST(req: Request) {
             price_rent: true,
             price_sell: true,
             type:true,
+            Love_count:true,
             user: {
               select: {
                 nickname: true,
@@ -128,6 +150,10 @@ export async function POST(req: Request) {
                 image: true,
               },
             },
+            love_log: {
+              where: { userId: userId }, 
+              select: { id: true },
+              },
 
           },
         });
@@ -151,9 +177,9 @@ export async function POST(req: Request) {
         }
       );
     }
-    
+    console.log(video)
     return new Response(
-      JSON.stringify({ ...video, hasPurchased, type }),
+      JSON.stringify({ ...video, hasPurchased, type, hasLoved: video.love_log.length > 0 }),
       {
         status: 200,
         headers: { "Content-Type": "application/json"},

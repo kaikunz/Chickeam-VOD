@@ -25,17 +25,20 @@ import {
   XMarkIcon,
   TvIcon,
   FingerPrintIcon,
+  BanknotesIcon,
+  CogIcon
 } from '@heroicons/react/24/outline'
 import { ArrowUpTrayIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
 const navigation = [
-  { name: 'หน้าหลัก', href: '/', icon: HomeIcon, current: false },
-  { name: 'ชุมชน', href: '/community', icon: UsersIcon, current: false },
-  { name: 'วิดีโอ', href: '/video', icon: TvIcon, current: false },
-  { name: 'สตรีมสด', href: '/live', icon: SignalIcon, current: false },
+  { name: 'หน้าหลัก', href: '/', icon: HomeIcon},
+  { name: 'ชุมชน', href: '/community', icon: UsersIcon},
+  { name: 'วิดีโอ', href: '/video', icon: TvIcon},
+  { name: 'สตรีมสด', href: '/live', icon: SignalIcon},
 ]
 
 const userNavigation = [
+    { name: 'แดชบอร์ด', href: '/dashboard' },
     { name: 'โปรไฟล์ของคุณ', href: '/profile' },
     { name: 'แก้ไขโปรไฟล์', href: '/editprofile' },
   ]
@@ -47,13 +50,26 @@ function classNames(...classes: string[]) {
 export default function Sidebar({ user }: { user: any }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const pathname = usePathname();
-  
-  const updatedNavigation = navigation.map((item) => ({
-    ...item,
-    current: item.href === pathname,
-  }));
 
+  const dashboardNavigation = [
+    { name: "แดชบอร์ด", href: "/dashboard", icon: HomeIcon },
+    { name: "วิดีโอของฉัน", href: "/dashboard/video", icon: TvIcon },
+    { name: "โพสต์ของฉัน", href: "/dashboard/posts", icon: UsersIcon },
+    { name: "รายได้ของฉัน", href: "/dashboard/profit", icon: BanknotesIcon },
+  ];
+
+  const adminNavigation = [
+    { name: "แผงควบคุม", href: "/admin", icon: HomeIcon },
+    { name: "จัดการผู้ใช้", href: "/admin/users", icon: UsersIcon },
+    { name: "จัดการวิดีโอ", href: "/admin/videos", icon: TvIcon },
+    { name: "จัดการรายงาน", href: "/admin/report", icon: CogIcon },
+  ];
+
+  const pathname = usePathname();
+  const isDashboard = pathname.startsWith("/dashboard");
+  const isAdmin = pathname.startsWith("/admin");
+
+  const Mapnavigation = isAdmin ? adminNavigation : isDashboard ? dashboardNavigation : navigation;
 
 
   return (
@@ -79,50 +95,53 @@ export default function Sidebar({ user }: { user: any }) {
               </TransitionChild>
               {/* Sidebar component, swap this element with another sidebar if you like */}
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
-                <div className="flex h-16 shrink-0 items-center">
+                <Link href="/" className="flex h-16 shrink-0 items-center">
                   <Image
                     src="/images/logo.png" className="h-8 w-auto"
                     width={1028} height={1013}
                     alt="Chieckeam Logo"
                     />
-                </div>
+                </Link>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" className="-mx-2 space-y-1">
-                        {updatedNavigation.map((item) => (
+                      {Mapnavigation.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
                           <li key={item.name}>
                             <a
                               href={item.href}
                               className={classNames(
-                                item.current
-                                  ? 'bg-gray-50 text-indigo-600'
-                                  : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                                isActive
+                                  ? 'bg-gray-50 text-red-600'
+                                  : 'text-gray-700 hover:bg-gray-50 hover:text-red-600',
                                 'group flex gap-x-3 rounded-md p-2 text-md font-semibold',
                               )}
                             >
                               <item.icon
                                 aria-hidden="true"
                                 className={classNames(
-                                  item.current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
+                                  isActive ? 'text-red-600' : 'text-gray-400 group-hover:text-red-600',
                                   'size-6 shrink-0',
                                 )}
                               />
                               {item.name}
                             </a>
                           </li>
-                        ))}
+                        );
+                      })}
                       </ul>
                     </li>
                  
                     <li className="mt-auto">
                       <a
                         href="#"
-                        className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+                        className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600"
                       >
                         <Cog6ToothIcon
                           aria-hidden="true"
-                          className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
+                          className="size-6 shrink-0 text-gray-400 group-hover:text-red-600"
                         />
                         Settings
                       </a>
@@ -138,23 +157,25 @@ export default function Sidebar({ user }: { user: any }) {
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
-            <div className="flex h-16 shrink-0 items-center">
+            <Link href="/" className="flex h-16 shrink-0 items-center">
             <Image
                 src="/images/logo.png" className="h-12 w-auto"
                 width={1028} height={1013}
                 alt="Chieckeam Logo"
             />
-            </div>
+            </Link>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-5 mt-6">
-                    {updatedNavigation.map((item) => (
+                    {Mapnavigation.map((item) => {
+                      const isActive = pathname === item.href;
+                      return (
                       <li key={item.name}>
                         <a
                           href={item.href}
                           className={classNames(
-                            item.current
+                            isActive
                               ? 'border border-red-400 bg-gray-50 text-red-600'
                               : 'text-gray-700 hover:bg-gray-50 hover:text-red-600',
                             'group flex items-center gap-x-[-4px] rounded-xl p-2 text-xl font-semibold',
@@ -163,24 +184,25 @@ export default function Sidebar({ user }: { user: any }) {
                           <item.icon
                             aria-hidden="true"
                             className={classNames(
-                              item.current ? 'text-red-600' : 'text-gray-400 group-hover:text-red-600',
+                              isActive ? 'text-red-600' : 'text-gray-400 group-hover:text-red-600',
                               'size-8 shrink-0 ml-2',
                             )}
                           />
                           <span className='mt-1 mx-auto text-center'>{item.name}</span>
                         </a>
                       </li>
-                    ))}
+                    );
+                  })}
                   </ul>
                 </li>
                 <li className="mt-auto">
                   <a
                     href="#"
-                    className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+                    className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600"
                   >
                     <Cog6ToothIcon
                       aria-hidden="true"
-                      className="size-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
+                      className="size-6 shrink-0 text-gray-400 group-hover:text-red-600"
                     />
                     Settings
                   </a>

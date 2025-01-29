@@ -31,6 +31,7 @@ model User {
   followers     Followers[] @relation("UserFollowers")
   following     Followers[] @relation("UserFollowing")
   purchase      Purchase[]
+  report        Report[]
 
   @@map("users")
 }
@@ -56,6 +57,7 @@ model Video {
   love_log      Love_log[]
   view_log      View_log[]
   purchase      Purchase[]
+  report        Report[]
 
   @@map("videos")
   @@index([slug])
@@ -73,6 +75,7 @@ model Comment {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   love_log    Love_log[]
+  report      Report[]
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
@@ -92,6 +95,7 @@ model Post {
   updatedAt   DateTime @updatedAt
   love_log    Love_log[]
   comment     Comment[]
+  report      Report[]
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
@@ -115,6 +119,26 @@ model Love_log {
   comment     Comment?   @relation(fields: [commentId], references: [id], onDelete: SetNull)
 
   @@map("Love_log")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  videoId     String?  @map("video_id")
+  postId      String?  @map("post_id")
+  commentId   String?  @map("comment_id")
+  type        Int?
+  reason      String
+  text        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video     Video?   @relation(fields: [videoId], references: [id], onDelete: SetNull)
+  post     Post?   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  comment     Comment?   @relation(fields: [commentId], references: [id], onDelete: SetNull)
+
+  @@map("Report")
 }
 
 model View_log {
