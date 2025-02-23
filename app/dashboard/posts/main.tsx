@@ -4,6 +4,8 @@ import axios from "axios";
 import { PencilSquareIcon, TrashIcon, ChartBarSquareIcon } from '@heroicons/react/24/outline';
 import {useRef, useEffect, useState } from "react";
 import Link from 'next/link';
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 export default function Main({ user }: { user: any }) {
 
@@ -29,6 +31,7 @@ export default function Main({ user }: { user: any }) {
 
     const [isFetching, setIsFetching] = useState(false);
     const hasFetchedInitialData = useRef(false);
+    const router = useRouter();
 
 
     const fetchPosts = async () => {
@@ -76,6 +79,58 @@ export default function Main({ user }: { user: any }) {
         }
       }, []);
 
+      const Deletepost = async (id:string) => {
+                               
+                                const result = await Swal.fire({
+                                  title: "คุณแน่ใจแล้วใช่ไหม?",
+                                  text: `ว่าจะลบโพสต์นี้ จะไม่สามารถกู้คืนได้?`,
+                                  icon: "warning",
+                                  showCancelButton: true,
+                                  confirmButtonColor: "#850fd7",
+                                  cancelButtonColor: "#d33",
+                                  confirmButtonText: "ยืนยัน!",
+                                  cancelButtonText: "ยกเลิก",
+                                });
+                            
+                                if (result.isConfirmed) {
+                                  try {
+                                    const response = await fetch(`/api/delete`, {
+                                      next: { revalidate: 0 },
+                                      method: "DELETE",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        id: id,
+                                        method: 2
+                                      }),
+                                    });
+                            
+                                    if (!response.ok) {
+                                      throw new Error("Failed to perform the action.");
+                                    }
+                            
+                                    const data = await response.json();
+                                    setPosts((prevPosts) => prevPosts.filter((video) => video.id !== id));
+            
+                            
+                                    const swalsuccess = await Swal.fire({
+                                        title: "Success!",
+                                        text: "ลบสำเร็จ",
+                                        icon: "success",
+                                        confirmButtonText: "OK",
+                                      });
+                                      if (swalsuccess.isConfirmed) {
+                                        router.refresh();
+                                      }
+                                  
+                                    
+                                  } catch (error: any) {
+                                    Swal.fire("Error", error.message, "error");
+                                  }
+                                }
+                              };
+
     return(
         <>
         
@@ -93,7 +148,7 @@ export default function Main({ user }: { user: any }) {
                     <ChartBarSquareIcon className="size-6" />
                     <span className="mt-[2px] ml-[12px] text-lg">ดูโพสต์</span>
                 </Link>
-                <button className="inline-flex mr-1 items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
+                <button onClick={() => Deletepost(posts.id)} className="inline-flex mr-1 items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
                     <TrashIcon className="size-6" />
                     <span className="mt-[2px] ml-[12px] text-lg">ลบ</span>
                 </button>

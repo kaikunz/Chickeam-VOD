@@ -1,9 +1,11 @@
 "use client";
 
 import axios from "axios";
-import { PencilSquareIcon, TrashIcon, ChartBarSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, ChartBarSquareIcon, EyeIcon, HeartIcon, ChatBubbleBottomCenterIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import {useRef, useEffect, useState } from "react";
 import Link from 'next/link';
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 export default function Main({ user }: { user: any }) {
 
@@ -19,7 +21,13 @@ export default function Main({ user }: { user: any }) {
         view_count: number;
         Love_count: number;
         slugs: string;
+        _count: count;
       };
+
+      type count = {
+        comment: number,
+        purchase: number
+      }
 
       type ApiResponse = {
         videos: Video[];
@@ -33,6 +41,7 @@ export default function Main({ user }: { user: any }) {
 
     const [isFetching, setIsFetching] = useState(false);
     const hasFetchedInitialData = useRef(false);
+    const router = useRouter();
 
 
     const fetchVideo = async () => {
@@ -43,6 +52,7 @@ export default function Main({ user }: { user: any }) {
         try {
             const response = await axios.post<ApiResponse>("/api/getmyvideos", { page });
             const result = response.data;
+            
 
             setVideo((prev) => [...prev, ...result.videos]);
             setHasMore(result.hasMore);
@@ -80,6 +90,58 @@ export default function Main({ user }: { user: any }) {
         }
       }, []);
 
+      const Deletevideo = async (id:string) => {
+                         
+                          const result = await Swal.fire({
+                            title: "คุณแน่ใจแล้วใช่ไหม?",
+                            text: `ว่าจะลบวิดีโอนี้ จะไม่สามารถกู้คืนได้?`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#850fd7",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "ยืนยัน!",
+                            cancelButtonText: "ยกเลิก",
+                          });
+                      
+                          if (result.isConfirmed) {
+                            try {
+                              const response = await fetch(`/api/delete`, {
+                                next: { revalidate: 0 },
+                                method: "DELETE",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                  id: id,
+                                  method: 1
+                                }),
+                              });
+                      
+                              if (!response.ok) {
+                                throw new Error("Failed to perform the action.");
+                              }
+                      
+                              const data = await response.json();
+                              setVideo((prevVideos) => prevVideos.filter((video) => video.id !== id));
+      
+                      
+                              const swalsuccess = await Swal.fire({
+                                  title: "Success!",
+                                  text: "ลบสำเร็จ",
+                                  icon: "success",
+                                  confirmButtonText: "OK",
+                                });
+                                if (swalsuccess.isConfirmed) {
+                                  router.refresh();
+                                }
+                            
+                              
+                            } catch (error: any) {
+                              Swal.fire("Error", error.message, "error");
+                            }
+                          }
+                        };
+
     return(
         <>
         
@@ -96,7 +158,20 @@ export default function Main({ user }: { user: any }) {
             </div>
             <div className="flex flex-col grow min-w-0 mt-2 relative mt-3">
                 <p className="font-bold md:text-md">{videos.title}</p>
-                <p className="text-gray-600 mt-1 font-semibold">เข้าชม {videos.view_count} ครั้ง</p>
+                <div className="inline-flex mt-2">
+                  
+                  <EyeIcon className="size-5 mr-1 mt-[1px]" /> 
+                  <span className="">{videos.view_count} </span>
+                  <span className="text-gray-500 ml-3">•</span>  
+                  <HeartIcon className="size-5 ml-2 mr-1 mt-[1px]" /> 
+                  <span className="">{videos.Love_count} </span>
+                  <span className="text-gray-500 ml-3">•</span>  
+                  <ChatBubbleBottomCenterIcon className="size-5 ml-2 mr-1 mt-[1px]" /> 
+                  <span className="">{videos._count.comment} </span>
+                  <span className="text-gray-500 ml-3">•</span>  
+                  <BanknotesIcon className="size-5 ml-2 mr-1 mt-[1px]" /> 
+                  <span className="">{videos._count.purchase} </span>
+                </div>
                 <div className="absolute right-0 top-0">
                 
                 <Link href={`/dashboard/analysis/` + videos.id} className="inline-flex mr-1 items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
@@ -107,7 +182,7 @@ export default function Main({ user }: { user: any }) {
                     <PencilSquareIcon className="size-6" />
                     <span className="mt-[2px] ml-[12px] text-lg md:block hidden">แก้ไข</span>
                 </Link>
-                <button className="inline-flex mr-1 items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
+                <button onClick={() => Deletevideo(videos.id)} className="inline-flex mr-1 items-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 ring-1 shadow-xs ring-gray-300 ring-inset hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-white">
                     <TrashIcon className="size-6" />
                     <span className="mt-[2px] ml-[12px] text-lg md:block hidden">ลบ</span>
                 </button>

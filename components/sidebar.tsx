@@ -30,18 +30,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { ArrowUpTrayIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
-const navigation = [
-  { name: 'หน้าหลัก', href: '/', icon: HomeIcon},
-  { name: 'ชุมชน', href: '/community', icon: UsersIcon},
-  { name: 'วิดีโอ', href: '/video', icon: TvIcon},
-  { name: 'สตรีมสด', href: '/live', icon: SignalIcon},
-]
 
-const userNavigation = [
-    { name: 'แดชบอร์ด', href: '/dashboard' },
-    { name: 'โปรไฟล์ของคุณ', href: '/profile' },
-    { name: 'แก้ไขโปรไฟล์', href: '/editprofile' },
-  ]
+
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -50,6 +40,24 @@ function classNames(...classes: string[]) {
 export default function Sidebar({ user }: { user: any }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const navigation = [
+    { name: 'หน้าหลัก', href: '/', icon: HomeIcon},
+    { name: 'ชุมชน', href: '/community', icon: UsersIcon},
+    { name: 'วิดีโอ', href: '/video', icon: TvIcon},
+    { name: 'สตรีมสด', href: '/live', icon: SignalIcon},
+  ]
+  
+  let userNavigation = [
+      { name: 'แดชบอร์ด', href: '/dashboard' },
+      { name: 'โปรไฟล์ของคุณ', href: '/profile' },
+      { name: 'แก้ไขโปรไฟล์', href: '/editprofile' },
+    ]
+
+  if (user && user.email == 'admin2@admin.com') {
+    userNavigation.push({
+      name: 'แอดมิน', href: '/admin'
+    })
+  }
 
   const dashboardNavigation = [
     { name: "แดชบอร์ด", href: "/dashboard", icon: HomeIcon },

@@ -7,8 +7,6 @@ export async function POST(req: Request) {
     const { page } = await req.json();
     const pageSize = 15; 
     const pageNumber = parseInt(page, 10);
-    const session = await auth();
-    const user = session?.user;
 
     if (!pageNumber || pageNumber < 1) {
         return new Response(
@@ -17,7 +15,7 @@ export async function POST(req: Request) {
         );
       }    
 
-    if (!page || !user) {
+    if (!page) {
         return new Response(
             JSON.stringify({ error: "จำเป็นค่ะ" }),
             { status: 400, headers: { "Content-Type": "application/json" } }
@@ -26,31 +24,47 @@ export async function POST(req: Request) {
 
     try {
 
-        
+        const session = await auth();
+        const user = session?.user;
+        let userId;
+        if (!user) {
+          userId = "unknown";
+        } else {
+          userId = user.id;
+        }
 
-      const Video = await prisma.video.findMany({
-        where: { OwnerUserID: user.id },
-        skip: (pageNumber - 1) * pageSize,
-        take: pageSize,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          _count: {
-            select: { comment: true, purchase:true },
-          },
-        },
-      });
+        const videos = await prisma.video.findMany({
+            where: {
+                type: 5
+            },
+            skip: (pageNumber - 1) * pageSize,
+            take: pageSize,
+            orderBy: {
+              createdAt: 'desc',
+            },
+            include: {
+                user: {
+                    select: {
+                      id: true, 
+                      name: true, 
+                      image: true, 
+                    },
+                  },  
+            
+            },
+          });
       
-      
-          const totalVideo = await prisma.video.count({where: {OwnerUserID: user.id}});
-          const hasMore = pageNumber * pageSize < totalVideo;
+          const totalPosts = await prisma.video.count({
+            where: {type: 5 }});        
+          const hasMore = pageNumber * pageSize < totalPosts;
         
-          const formattedVideo = Video.map((Video) => ({
-            ...Video,
-            createdAt: format(new Date(Video.createdAt), "dd/MM/yyyy HH:mm:ss"),
+          const formattedPosts = videos.map((video) => ({
+            ...video,
+            createdAt: format(new Date(video.createdAt), "dd/MM/yyyy HH:mm:ss"),
           }));
 
           return new Response(
-            JSON.stringify({ message: "videos successful", videos: formattedVideo, hasMore }),
+            JSON.stringify({ message: "Live successful", video: formattedPosts, hasMore }),
             { status: 200, headers: { "Content-Type": "application/json" } }
           );
 

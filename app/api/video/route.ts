@@ -54,28 +54,32 @@ const session = await auth();
 
   try {
     const videos = await prisma.video.findMany({
-      select: {
-        title: true,
-        thumbnail: true,
-        type: true,
-        price_rent: true,
-        price_sell: true,
-        slug: true,
-        view_count: true,
-        createdAt: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-        love_log: {
-          where: { userId }, 
-          select: { id: true },
-        },
+      where: {
+          type: { in: [1, 2, 3] }
       },
-    });
+      select: {
+          title: true,
+          thumbnail: true,
+          type: true,
+          price_rent: true,
+          price_sell: true,
+          slug: true,
+          view_count: true,
+          createdAt: true,
+          user: {
+              select: {
+                  id: true,
+                  name: true,
+                  image: true,
+              },
+          },
+          love_log: {
+              where: { userId },
+              select: { id: true },
+          },
+      },
+  });
+  
 
     const result = videos.map((video) => ({
       ...video,

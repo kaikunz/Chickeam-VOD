@@ -153,6 +153,8 @@ export default function Main({ user }: { user: any }) {
             </div>
             <div className="flex flex-col grow min-w-0 mt-2 relative mt-3">
                 <p className="font-bold md:text-md">{videos.title}</p>
+                <div className="flex flex-col">
+                  </div>
                 <p className="text-gray-600 mt-1 font-semibold">เข้าชม {videos.view_count} ครั้ง</p>
                 <div className="absolute right-0 top-0">
                 

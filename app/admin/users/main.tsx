@@ -15,10 +15,9 @@ interface User {
 
 interface DetailProps {
   user: User | any;
-  slug: String;
 }
 
-export default function Main({ user, slug }: DetailProps) {
+export default function Main({ user }: DetailProps) {
 
 
 

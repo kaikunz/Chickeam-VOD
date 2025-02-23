@@ -39,6 +39,8 @@ const VideoUploadForm = () => {
   const [Type, setType] = useState<string | null>(null);
   const [Price1, setPrice1] = useState<number | null>(null);
   const [Price2, setPrice2] = useState<number | null>(null);
+  const [upscale, setUpscale] = useState(0); // ค่าเริ่มต้นเป็น 0 (ปิด)
+
 
  
   const options = [
@@ -75,6 +77,7 @@ const VideoUploadForm = () => {
     if (slug) formData.append("slug", slug);
     if (path) formData.append("path", path);
     if (file) formData.append("file", file);
+    if (upscale) formData.append("upscale", String(upscale));
 
     try {
       const res = await axios.post("https://chickeam.com/upload", formData, {
@@ -172,6 +175,10 @@ const VideoUploadForm = () => {
     
   }
 
+  const handleCheckboxChange = () => {
+    setUpscale((prev) => (prev === 0 ? 1 : 0));
+  };
+
   return (
     <>
         <p className="text-2xl font-bold mb-4">อัปโหลดวิดีโอ</p>
@@ -204,6 +211,12 @@ const VideoUploadForm = () => {
           file:bg-red-50 file:text-red-700
           hover:file:bg-red-100
         " required/>
+        </label>
+
+        <label className="relative inline-flex items-center cursor-pointer mt-5 ml-2">
+            <input checked={upscale === 1} onChange={handleCheckboxChange}  type="checkbox" value="0" name="endstatus" className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Upscale</span>
         </label>
 
         <button type="submit" className="inline-block px-7 py-4 mt-5 bg-red-500 text-white text-lg font-bold leading-snug uppercase rounded shadow-md hover:bg-red-700 hover:shadow-lg focus:bg-red-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-red-800 active:shadow-lg transition duration-150 ease-in-out w-full">อัปโหลดวิดีโอ</button>

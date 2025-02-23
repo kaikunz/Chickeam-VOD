@@ -162,40 +162,23 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     };
   
     useEffect(() => {
-        if (video && video.type === 2) {
-          videotypeistwo();
-        } else {
-          const data = {
-            type: 1,
-            hasPurchased: false
-          }
-          setData(data)
-        }
+      videotypeistwo();
       }, [video]);
     
       const videotypeistwo = async () => {
         try {
-          console.log("Function videotypeistwo is running");
-          console.log("Video slug:", video.slugs);
     
-          const res2 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getvideo`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              slug: video.slugs,
-            }),
-          });
+
+          const res2 = await axios.post("/api/getvideo", { slug: video.slugs, });
     
-          if (!res2.ok) {
-            throw new Error("Failed to fetch the video data");
+          if (res2.status === 200) {
+            const result = await res2.data;
+            setData(result);
+            setHasLoved(result.love_log.length > 0);
+            setLoveCount(result.Love_count);
           }
     
-          const result = await res2.json();
-          setData(result);
-          setHasLoved(result.love_log.length > 0);
-          setLoveCount(result.Love_count);
+          
         } catch (error: any) {
           console.error("Error in videotypeistwo:", error.message);
         }
@@ -293,6 +276,28 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
       hasMore: boolean;
     };
 
+    const LoadPlaylist = async () => {
+      try {
+
+        const response = await axios.get("https://chickeam.com/master", {
+          headers: {
+            "Authorization": `token ${datav?.token}`,
+            "Content-Type": "application/json",
+          }
+        });
+        
+        console.log(response);
+
+
+      } catch (error) {
+        console.error("Failed to fetch posts:", error);
+      } finally {
+          setIsFetching(false);
+          setLoading(false);
+      }
+    }
+
+
     const fetchComment = async () => {
       if (isFetching || !hasMore || loading) return; 
       setIsFetching(true);
@@ -338,7 +343,10 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     
   
   const url = `https://chickeam.com/play?test=https://chickeam.com/temp/${videoPath}/playlist.m3u8`;
-  const url2 = `https://chickeam.com/play?test=https://chickeam.com/temp/${datavPath}/playlist.m3u8`;
+  const url2 = `https://chickeam.com/play/${datav?.key}`;
+  const url3 = `http://localhost:4000/play/${datav?.path}`;
+  //const url3 = `http://live.chickeam.com/play/${datav?.path}`;
+  //const url2 = `https://chickeam.com/play?test=https://chickeam.com/temp/${datavPath}`;
   
   if (!datav) {
     return <div>กำลังโหลด</div>; 
@@ -425,7 +433,7 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
         {datav.type === 1 || datav.hasPurchased == true ? (
         
           <div className="rounded-lg shadow">
-            <iframe className="w-full aspect-video rounded-lg" src={ datav.type == 2 ? url2 : url}></iframe>
+            <iframe className="w-full aspect-video rounded-lg" src={datav.type === 5 ? url3:url2}></iframe>
           </div>
         ) : (
           <div className="relative bg-black rounded-lg shadow w-full h-[484px]">
