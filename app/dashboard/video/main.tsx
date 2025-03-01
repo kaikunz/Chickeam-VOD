@@ -142,6 +142,16 @@ export default function Main({ user }: { user: any }) {
                           }
                         };
 
+                        const videoTypeMap = {
+                          0: "ส่วนตัว",
+                          1: "สาธารณะ",
+                          2: "เฉพาะสมาชิก",
+                          3: "ขายวิดีโอ",
+                          4: "ให้เช่า",
+                          5: "กำลังถ่ายทอดสด",
+                          6: "ยุติการถ่ายทอดสด"
+                      };
+
     return(
         <>
         
@@ -171,6 +181,8 @@ export default function Main({ user }: { user: any }) {
                   <span className="text-gray-500 ml-3">•</span>  
                   <BanknotesIcon className="size-5 ml-2 mr-1 mt-[1px]" /> 
                   <span className="">{videos._count.purchase} </span>
+                  <span className="text-gray-500 ml-3">•</span>  
+                  <span className="ml-2">{videoTypeMap[videos.type] || "ไม่ทราบประเภท"}</span>
                 </div>
                 <div className="absolute right-0 top-0">
                 

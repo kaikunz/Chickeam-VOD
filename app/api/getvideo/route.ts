@@ -9,20 +9,14 @@ const SECRET_KEY = process.env.JWT_SECRET || "kinmha112";
 
 export async function POST(req: Request) {
 
-  const session = await auth();
-  const user = session?.user;
   let userId;
 
   try {
     const body = await req.json();
-    const { slug, edit } = body;
+    const { slug, edit, method, userIds } = body;
 
     
-    if (!user) {
-      userId = "unknown";
-    } else {
-      userId = user.id;
-    }
+    userId = userIds;
 
     if (!slug) {
       return new Response(
@@ -74,7 +68,7 @@ export async function POST(req: Request) {
         include: {
           user: {
             select: {
-              nickname: true,
+              name: true,
               follower: true,
               image: true,
             },
@@ -90,22 +84,22 @@ export async function POST(req: Request) {
 
     } else if (type == 2) {
       
-      if (user) {
+      if (userId) {
         const videoWithPurchase = await prisma.video.findFirst({
           where: { slug },
           include: {
             purchase: {
-              where: { userId: user.id },
+              where: { userId: userId },
             },
             user: {
               select: {
-                nickname: true,
+                name: true,
                 follower: true,
                 image: true,
               },
             },
             love_log: {
-              where: { userId: user.id }, 
+              where: { userId: userId }, 
               select: { id: true },
             },
             
@@ -128,15 +122,16 @@ export async function POST(req: Request) {
                 price_sell: true,
                 type:true,
                 Love_count:true,
+                OwnerUserID:true,
                 user: {
                   select: {
-                    nickname: true,
+                    name: true,
                     follower: true,
                     image: true,
                   },
                 },
                 love_log: {
-                  where: { userId: user.id }, 
+                  where: { userId: userId }, 
                   select: { id: true },
                   },
 
@@ -155,9 +150,10 @@ export async function POST(req: Request) {
             price_sell: true,
             type:true,
             Love_count:true,
+            OwnerUserID:true,
             user: {
               select: {
-                nickname: true,
+                name: true,
                 follower: true,
                 image: true,
               },
@@ -180,10 +176,11 @@ export async function POST(req: Request) {
           description:true,
           type:true,
           Love_count:true,
+          OwnerUserID:true,
           path:true,
           user: {
             select: {
-              nickname: true,
+              name: true,
               follower: true,
               image: true,
             },
@@ -207,10 +204,12 @@ export async function POST(req: Request) {
           description:true,
           type:true,
           Love_count:true,
+          OwnerUserID:true,
+          view_count:true,
           path:true,
           user: {
             select: {
-              nickname: true,
+              name: true,
               follower: true,
               image: true,
             },
@@ -263,11 +262,31 @@ export async function POST(req: Request) {
     let encrypted = cipher.update(str, "utf8", "base64");
     encrypted += cipher.final("base64");
 
-    
+    if (method == 1) {
+      const updateview = await prisma.video.update({
+        where: { slug: slug },
+        data: {
+          view_count: {
+            increment: 1,
+          },
+        },
+      });
+  
+    }
+
+    const follow = await prisma.followers.findFirst({
+      where: { followerUserId: video.OwnerUserID, userId: userIds }
+    })
+
+    const followcount = await prisma.followers.count({
+      where: { followerUserId: video.OwnerUserID}
+    })
+
+    const hasFollow = !!follow;
 
 
     return new Response(
-      JSON.stringify({ ...video, hasPurchased, type, hasLoved: video.love_log.length > 0, token:token, key:encrypted }),
+      JSON.stringify({ ...video, hasPurchased, type, hasLoved: video.love_log.length > 0, token:token, key:encrypted.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""), userlogin:userIds, hasFollow:hasFollow, followcount: followcount }),
       {
         status: 200,
         headers: { "Content-Type": "application/json"},

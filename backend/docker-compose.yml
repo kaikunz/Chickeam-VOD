@@ -7,18 +7,29 @@ services:
       - "4000:4000"
       - "1935:1935"
       - "80:80"
+      - "5000:5000"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf.template
       - ./wwwroot:/var/www/html
       - ./wwwroot/streaming:/opt/data/hls
     depends_on:
       - php
+      - redis
 
   php:
     build: ./php
     container_name: php-fpm
     volumes:
       - ./wwwroot:/var/www/html
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
 
   ffmpeg:
     image: jrottenberg/ffmpeg:4.3-alpine
@@ -27,3 +38,4 @@ services:
       - nginx
     stdin_open: true
     tty: true
+

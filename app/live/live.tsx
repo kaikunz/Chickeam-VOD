@@ -88,7 +88,7 @@ export default function Lives({ user }: { user: any }) {
       useEffect(() => {
         if (!hasFetchedInitialData.current) {
           fetchPosts();
-          hasFetchedInitialData.current = true; // ป้องกันการดึงข้อมูลซ้ำ
+          hasFetchedInitialData.current = true; 
         }
       }, []);
       
@@ -108,11 +108,6 @@ export default function Lives({ user }: { user: any }) {
                     <p className="block text-left font-bold text-md mb-1 truncate">
                       {video.user.name}
                     </p>
-                    <p className="text-left font-bold text-gray-600 text-sm inline-flex truncate">
-                      <span className="mr-[6px]"><EyeIcon className="w-5" /></span> {video.viewCountFormatted}
-                      <span className="ml-2 text-gray-500">•</span>
-                      <span className="text-gray-500 ml-2">{video.createdAtAgo}</span>
-                      </p>
     
                   </div>
                 </div>

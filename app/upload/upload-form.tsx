@@ -80,7 +80,7 @@ const VideoUploadForm = () => {
     if (upscale) formData.append("upscale", String(upscale));
 
     try {
-      const res = await axios.post("https://chickeam.com/upload", formData, {
+      const res = await axios.post("http://localhost:5000/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -5,8 +5,10 @@ import { useRef, useEffect, useState, Fragment } from "react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Link from "next/link";
 import { Dialog,Transition } from '@headlessui/react'
 import toast from 'react-hot-toast';
+import LiveChat from './livechat'
 
 interface LoveLog {
   id: string;
@@ -21,15 +23,21 @@ interface WatchVideosProps {
     path: string;
     type: number;
     Love_count: number;
+    view_count: number;
     user: {
-      nickname: string;
+      name: string;
       follower: number;
       image: string;
     };
     hasPurchased: boolean;
     slugs: string;
     hasLoved:boolean;
-
+    token: String;
+    key: String;
+    hasFollow: boolean;
+    OwnerUserID: String;
+    followcount: number;
+    slug:string;
 }
 interface User {
   id: string;
@@ -47,7 +55,6 @@ interface PostDetailProps {
 export default function WatchVideos({ user, video }: PostDetailProps) {
 
 
-    const [datav, setData] = useState<any>(null);
     let [isOpen, setIsOpen] = useState(false)
     const router = useRouter();
 
@@ -59,6 +66,8 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     const [hasMore, setHasMore] = useState(true); 
     const [loading, setLoading] = useState(false);
     const [reason, setReason] = useState("copyright");
+    const [hasFollow, setHasFollow] = useState<boolean>(video.hasFollow); 
+    const [FollowCount, setFollowCount] = useState<number>(video.followcount); 
 
     
     const [isFetching, setIsFetching] = useState(false);
@@ -80,6 +89,25 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
       };
       love_log: LoveLog[];
     };
+
+    const toggleFollow = async () => {
+      try {
+        
+        const followcheck = await axios.post("/api/follow", { followuserId: video.OwnerUserID});
+        const result = followcheck.data;
+        
+        if (result.followed) {
+          setFollowCount((prev) => prev + 1);
+        } else {
+          setFollowCount((prev) => Math.max(prev - 1, 0)); 
+        }
+
+        setHasFollow(result.followed);
+      } catch (error) {
+        console.error("Failed to update follow status:", error);
+      }
+    };
+    
 
     const Commentbtn = async () => {
         const posts = {
@@ -160,29 +188,8 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
         console.error("Failed to update love count:", error);
       }
     };
-  
-    useEffect(() => {
-      videotypeistwo();
-      }, [video]);
     
-      const videotypeistwo = async () => {
-        try {
-    
-
-          const res2 = await axios.post("/api/getvideo", { slug: video.slugs, });
-    
-          if (res2.status === 200) {
-            const result = await res2.data;
-            setData(result);
-            setHasLoved(result.love_log.length > 0);
-            setLoveCount(result.Love_count);
-          }
-    
-          
-        } catch (error: any) {
-          console.error("Error in videotypeistwo:", error.message);
-        }
-      };
+      
     
 
     const handleConfirmAndCallApi = async (action: "rent" | "buy") => {
@@ -269,34 +276,14 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     //   }, [slug]);
     
     const videoPath = video?.path || "default-path";
-    const datavPath = datav?.path || "default-path";
+    const datavPath = video?.path || "default-path";
 
     type ApiResponse = {
       comment: Comment[];
       hasMore: boolean;
     };
 
-    const LoadPlaylist = async () => {
-      try {
-
-        const response = await axios.get("https://chickeam.com/master", {
-          headers: {
-            "Authorization": `token ${datav?.token}`,
-            "Content-Type": "application/json",
-          }
-        });
-        
-        console.log(response);
-
-
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      } finally {
-          setIsFetching(false);
-          setLoading(false);
-      }
-    }
-
+    
 
     const fetchComment = async () => {
       if (isFetching || !hasMore || loading) return; 
@@ -343,14 +330,12 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     
   
   const url = `https://chickeam.com/play?test=https://chickeam.com/temp/${videoPath}/playlist.m3u8`;
-  const url2 = `https://chickeam.com/play/${datav?.key}`;
-  const url3 = `http://localhost:4000/play/${datav?.path}`;
+  const url2 = `http://localhost:5000/play/${video?.key}`;
+  const url3 = `http://localhost:4000/play/${video?.path}`;
   //const url3 = `http://live.chickeam.com/play/${datav?.path}`;
   //const url2 = `https://chickeam.com/play?test=https://chickeam.com/temp/${datavPath}`;
   
-  if (!datav) {
-    return <div>กำลังโหลด</div>; 
-  }
+ 
 
   return (
     <>
@@ -430,10 +415,10 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-2">
 
-        {datav.type === 1 || datav.hasPurchased == true ? (
+        {video.type === 1 || video.hasPurchased == true ? (
         
           <div className="rounded-lg shadow">
-            <iframe className="w-full aspect-video rounded-lg" src={datav.type === 5 ? url3:url2}></iframe>
+            <iframe className="w-full aspect-video rounded-lg" src={video.type === 5 ? url3:url2}></iframe>
           </div>
         ) : (
           <div className="relative bg-black rounded-lg shadow w-full h-[484px]">
@@ -459,20 +444,31 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
           </div>
         )}
           <p className="text-3xl mt-6 font-bold">{video.title}</p>
+          <p className="text-sm mt-3">{video.type > 0 && video.type < 4 ? "เข้าชม":""} {video.type > 0 && video.type < 4 ? video.view_count + "ครั้ง":""}</p>
           <div className="flex items-center mb-6">
             <div className="shrink-0 mr-[16px] my-4">
-                <img className="mx-auto md:size-12 size-16 shrink-0 rounded-full" src={video.user?.image ? video.user.image : "/images/default.png"} alt={video.user.nickname} />
+                <img className="mx-auto md:size-12 size-16 shrink-0 rounded-full" src={video.user?.image ? video.user.image : "/images/default.png"} alt={video.user.name} />
             </div>
-
-            <div className="flex flex-col grow min-w-0 mt-2 relative mt-3">
-                <p className="font-bold md:text-md">{video.user.nickname}</p>
+            
+            <div className="flex flex-col grow min-w-0 mt-2 mt-3 relative">
+            <Link href={`/profiles/${video.OwnerUserID}`}>
+                <p className="font-bold md:text-md">{video.user.name}</p>
                 <p className="text-gray-600 mt-1 font-semibold">
-                    ผู้ติดตาม {video.user.follower} คน
+                    ผู้ติดตาม {FollowCount} คน
                 </p>
+            </Link>
                 <div className="absolute right-0 top-0">
-                    <button id="addfollower" className="bg-red-600 text-white hover:bg-red-500 rounded-lg md:p-2 p-1 font-bold w-24 mt-2">ติดตาม</button>
+                  <button
+                    onClick={toggleFollow}
+                    className={`rounded-lg md:p-2 p-1 font-bold w-24 mt-2 ${
+                      hasFollow ? "bg-white border border-gray-400" : "bg-red-600 text-white hover:bg-red-500"
+                    }`}
+                  >
+                    {hasFollow ? "ติดตามแล้ว" : "ติดตาม"}
+                  </button>
                 </div>
             </div>
+            
         </div>
 
         <div className="flex justify-end gap-2">
@@ -506,136 +502,78 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
         <div>
 
         <div className="p-2">
-    <p className="text-xl font-bold">ความคิดเห็น</p>
+    <p className="text-xl font-bold">{video.type === 5 ? "Live Chat" : "ความคิดเห็น"}</p>
 
-    <div className="mt-4">
-    <div>
-      <div className="flex flex-row w-full">
-        <div className="mr-1 lg:mr-2">
-          <div className="hidden lg:block">
-            <img
-              src={user?.image ? user.image : "/images/default.png"}
-              className="object-cover h-[45px] w-[45px] min-w-[45px] min-h-[45px] rounded-full"
-            />
-          </div>
-          <div className="lg:hidden">
-            <img
-              src={user?.image ? user.image : "/images/default.png"}
-              className="object-cover h-[40px] w-[40px] min-w-[40px] min-h-[40px] rounded-full"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col p-3 rounded-xl bg-gray-200 w-full">
-          <textarea
-            className="resize-none border-0 bg-transparent outline-none w-full"
-            id="commenttext"
-            maxLength={500} onChange={(e) => SetText(e.target.value)}
-            placeholder="แสดงความคิดเห็น"
-            style={{ height: "auto" }}
-            defaultValue={""}
-          />
-          <div className="flex justify-end">
-            <button onClick={Commentbtn} className="sendcomment rounded-md">
-              <svg
-                id="iconsend"
-                focusable="false"
-                data-prefix="fas"
-                data-icon="paper-plane"
-                className="w-4 h-4 text-[#D45151] hover:text-[#FA001E]"
-                role="img"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-              >
-                <path
-                  fill="currentColor"
-                  d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"
-                />
-              </svg>
-              <svg
-                id="iconsending"
-                xmlns="http://www.w3.org/2000/svg"
-                className="hidden animate-spin w-4 h-4 text-[#D45151] hover:text-[#FA001E]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1={12} y1={2} x2={12} y2={6} />
-                <line x1={12} y1={18} x2={12} y2={22} />
-                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
-                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
-                <line x1={2} y1={12} x2={6} y2={12} />
-                <line x1={18} y1={12} x2={22} y2={12} />
-                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
-                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-      <div className="mt-8">
-      {comment.map((comment) => (
-      <div className="mb-8">
-    <div className="flex flex-row w-full">
-      <div className="mr-1 lg:mr-2">
-        <div className="hidden lg:block">
-          <img
-            src={comment.user?.image}
-            alt="UserProfilePicture"
-            className="object-cover h-[45px] w-[45px] min-w-[45px] min-h-[45px] rounded-full"
-          />
-        </div>
-        <div className="lg:hidden">
-          <img
-            src={comment.user?.image}
-            alt="UserProfilePicture"
-            className="object-cover h-[40px] w-[40px] min-w-[40px] min-h-[40px] rounded-full"
-          />
-        </div>
-      </div>
-      <div className="flex flex-col w-full">
-        <p className="text-sm font-bold text-gray-500 text-balance">
-        {comment.user?.name} <span className="ml-1 text-gray-500">•</span>{" "}
-          <span className="ml-1 font-normal text-gray-500">{comment.createdAt}</span>
-        </p>
-        <p className="mt-1 ml-1">
-        {comment.comment}
-        </p>
-        <div className="mt-2">
-        <button
-              onClick={() => LoveClick(comment.id)}
-              className={`${
-                  comment.love_log?.length > 0 ? "text-red-600" : "text-black"
-              } w-24 mt-1 group flex items-center text-gray-500 px-3 py-2 text-base leading-6 font-medium rounded-full`}
-              >
-              <svg
-                  className="text-center h-7 w-6"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-              >
-                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span className="ml-2">{comment.Love_count}</span>
-              </button>
-          
-        </div>
-        
-        
-      </div>
-    </div>
-  </div>
-  ))}
-      </div>
+    {video.type === 5 ? (
+        <LiveChat liveId={video.slug} user={user} />
+    ) : (
+        <>
+            <div className="mt-4">
+                <div className="flex flex-row w-full">
+                    <div className="mr-1 lg:mr-2">
+                        <img
+                            src={user?.image ? user.image : "/images/default.png"}
+                            className="object-cover h-[45px] w-[45px] min-w-[45px] min-h-[45px] rounded-full"
+                        />
+                    </div>
+                    <div className="flex flex-col p-3 rounded-xl bg-gray-200 w-full">
+                        <textarea
+                            className="resize-none border-0 bg-transparent outline-none w-full"
+                            id="commenttext"
+                            maxLength={500}
+                            onChange={(e) => SetText(e.target.value)}
+                            placeholder="แสดงความคิดเห็น"
+                            style={{ height: "auto" }}
+                            defaultValue={""}
+                        />
+                        <div className="flex justify-end">
+                            <button onClick={Commentbtn} className="sendcomment rounded-md">
+                                ส่ง
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    </div>
+            <div className="my-8">
+                {comment.map((comment) => (
+                    <div className="mb-8">
+                        <div className="flex flex-row w-full">
+                            <div className="mr-1 lg:mr-2">
+                                <img
+                                    src={comment.user?.image}
+                                    alt="UserProfilePicture"
+                                    className="object-cover h-[45px] w-[45px] min-w-[45px] min-h-[45px] rounded-full"
+                                />
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-sm font-bold text-gray-500">
+                                    {comment.user?.name} <span className="ml-1 text-gray-500">•</span>{" "}
+                                    <span className="ml-1 font-normal text-gray-500">{comment.createdAt}</span>
+                                </p>
+                                <p className="mt-1 ml-1">{comment.comment}</p>
+                                <div className="mt-2">
+                                    <button
+                                        onClick={() => LoveClick(comment.id)}
+                                        className={`${
+                                            comment.love_log?.length > 0 ? "text-red-600" : "text-black"
+                                        } w-24 mt-1 group flex items-center text-gray-500 px-3 py-2 text-base leading-6 font-medium rounded-full`}
+                                    >
+                                        <svg className="text-center h-7 w-6" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                        <span className="ml-2">{comment.Love_count}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </>
+    )}
+</div>
+
 
         </div>
 

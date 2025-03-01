@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from "next/navigation";
+
 
 import {
   Dialog,
@@ -26,7 +28,8 @@ import {
   TvIcon,
   FingerPrintIcon,
   BanknotesIcon,
-  CogIcon
+  CogIcon,
+  MagnifyingGlassCircleIcon
 } from '@heroicons/react/24/outline'
 import { ArrowUpTrayIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid'
 
@@ -49,7 +52,8 @@ export default function Sidebar({ user }: { user: any }) {
   
   let userNavigation = [
       { name: 'แดชบอร์ด', href: '/dashboard' },
-      { name: 'โปรไฟล์ของคุณ', href: '/profile' },
+      { name: 'โปรไฟล์ของคุณ', href: `/profiles/${user?.id}` },
+      { name: 'ประวัติการซื้อวิดีโอ', href: '/history' },
       { name: 'แก้ไขโปรไฟล์', href: '/editprofile' },
     ]
 
@@ -78,7 +82,17 @@ export default function Sidebar({ user }: { user: any }) {
   const isAdmin = pathname.startsWith("/admin");
 
   const Mapnavigation = isAdmin ? adminNavigation : isDashboard ? dashboardNavigation : navigation;
+  const [query, setQuery] = useState("");
+  const router = useRouter();
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault(); 
+
+    if (query.trim() === "") return; 
+
+    router.push(`/search?query=${encodeURIComponent(query)}`); 
+  };
+  
 
   return (
     <>
@@ -231,7 +245,7 @@ export default function Sidebar({ user }: { user: any }) {
             <div aria-hidden="true" className="h-6 w-px bg-gray-200 lg:hidden" />
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-              <form action="#" method="GET" className="grid flex-1 grid-cols-1">
+              <form onSubmit={handleSubmit} className="grid flex-1 grid-cols-1">
                 
                 <label htmlFor="searchvideo" className="relative lg:w-1/2 w-full mx-auto text-gray-400 focus-within:text-gray-600 block">
 
@@ -239,13 +253,17 @@ export default function Sidebar({ user }: { user: any }) {
                   aria-hidden="true"
                   className="mx-auto pointer-events-none w-5 absolute top-7 transform -translate-y-1/2 left-2"/>
                 <input
-                  name="searchvideo"
-                  id="searchvideo"
                   type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   placeholder="ค้นหาวิดีโอ"
                   aria-label="ค้นหาวิดีโอ"
                   className="w-full rounded-full h-10 mt-2 focus:outline-none block bg-gray-200 pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6"
                 />
+                <button type="submit" className='absolute right-0 top-3 cursor-pointer bg-white rounded-r-full px-2 border-r border-gray-300'>
+                  <MagnifyingGlassCircleIcon className='size-8 text-gray-500' />
+                </button>
+
                 </label>
                     
                 

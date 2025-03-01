@@ -1,11 +1,10 @@
 "use client";
 
 import axios from "axios";
-import { PencilSquareIcon, TrashIcon, ChartBarSquareIcon } from '@heroicons/react/24/outline';
 import {useRef, useEffect, useState } from "react";
 import Link from 'next/link';
 import { useRouter } from "next/navigation";
-import Swal from "sweetalert2";
+import io from "socket.io-client";
 import toast from "react-hot-toast";
 
 interface User {
@@ -18,6 +17,9 @@ interface DetailProps {
   user: User | any;
   slug: string;
 }
+
+
+const socket = io("http://localhost:3000", { path: "/connectwebsocket" });
 
 export default function LiveDetail({ user, slug }: DetailProps) {
   type Live = {
@@ -94,17 +96,27 @@ export default function LiveDetail({ user, slug }: DetailProps) {
 
   }
 
-  const StartStream = async () => {
 
+  const StartStream = async () => {
+    
     if (data) {
       //const html = `http://live.chickeam.com/stream/${data.path}/index.m3u8`;
       const html = `http://localhost:4000/streaming/${data.path}.m3u8`;
       
+
       try {
         const check = await axios.get(html, { validateStatus: () => true });
 
         if (check.status === 200) {
           toast.success("เริ่มสตรีมแล้ว")
+          
+          const host = { id: user.id, name: user.name, image: user.image };
+          socket.emit("create-liveroom", { liveId:slug, host });
+
+          socket.on("room-created", (room) => {
+            toast.success(`ห้อง "${room.liveId}" ถูกสร้างโดย ${room.host.name}`);
+        });
+
 
           const res2 = await axios.post("/api/livestart", { slug: slug, });
 
