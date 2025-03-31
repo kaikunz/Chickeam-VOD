@@ -1,6 +1,7 @@
 "use client";
 import {useRef, useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 
 export default function Communitys({ user }: { user: any }) {
@@ -10,6 +11,7 @@ export default function Communitys({ user }: { user: any }) {
 
 
     const Postbtn = async () => {
+      if (text) {
         const posts = {
             "text": text
         }
@@ -25,6 +27,10 @@ export default function Communitys({ user }: { user: any }) {
           
           
         setPosts((prevPosts) => [newPost, ...prevPosts]);
+        toast.success("สร้างโพสต์เรียบร้อย")
+      } else {
+        toast.error("คุณยังไม่ได้กรอกโพสต์")
+      }
 
     }
 

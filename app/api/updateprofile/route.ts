@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const thumbnail = formData.get("thumbnail") as File | null;
     const name = formData.get("name");
 
-    if (!thumbnail || !name) {
+    if (!name) {
         return NextResponse.json(
             {
               status: "error",

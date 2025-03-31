@@ -38,15 +38,18 @@ export async function POST(req: Request) {
       where: {
         userId: user.id,
         videoId,
+        type: 2,
       },
     });
-
-    if (existingPurchase) {
+    
+    const now = new Date();
+    if (existingPurchase && existingPurchase.expire_date && existingPurchase.expire_date > now) {
       return new Response(
         JSON.stringify({ message: "You already own this video" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
+ 
 
     const expireDate = new Date();
     expireDate.setDate(expireDate.getDate() + 30);

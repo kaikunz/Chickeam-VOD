@@ -110,6 +110,7 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
     
 
     const Commentbtn = async () => {
+      if (text) {
         const posts = {
             "text": text,
             "Id": video.id,
@@ -127,6 +128,10 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
           
           
         setComment((prevPosts) => [newPost, ...prevPosts]);
+        toast.success("แสดงความคิดเห็นแล้ว")
+      } else {
+        toast.error("คุณยังไม่ได้กรอกความคิดเห็น")
+      }
 
     }
 
@@ -192,7 +197,7 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
       
     
 
-    const handleConfirmAndCallApi = async (action: "rent" | "buy") => {
+    const Purchasevideo = async (action: "rent" | "buy") => {
         const actionText = action === "rent" ? "เช่า" : "ซื้อ";
         const successMessage =
           action === "rent"
@@ -429,13 +434,13 @@ export default function WatchVideos({ user, video }: PostDetailProps) {
               <div className="flex justify-center py-2">
                 <button
                   className="text-lg font-bold text-white bg-red-600 rounded-lg px-6 py-2 hover:bg-red-700"
-                  onClick={() => handleConfirmAndCallApi('rent')}
+                  onClick={() => Purchasevideo('rent')}
                 >
                   <ClockIcon className="w-6 inline-flex mr-1" /> เช่า 30 วัน ฿{video.price_rent}
                 </button>
                 <button
                   className="text-lg font-bold text-white bg-red-600 rounded-lg ml-4 px-6 py-2 hover:bg-red-700"
-                  onClick={() => handleConfirmAndCallApi('buy')}
+                  onClick={() => Purchasevideo('buy')}
                 >
                   <ShoppingBagIcon className="w-6 inline-flex mr-1" /> ซื้อ ฿{video.price_sell}
                 </button>

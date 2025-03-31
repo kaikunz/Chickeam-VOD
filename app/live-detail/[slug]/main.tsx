@@ -153,7 +153,7 @@ export default function LiveDetail({ user, slug }: DetailProps) {
         <div id="checksignal">
           <div className="mt-6">
             <p className="font-bold text-lg">1. นำลิงก์ข้างล่างนี้นำไปใส่ในโปรแกรม Broadcast หัวข้อ Server</p>
-            <p className="bg-gray-200 text-center w-full font-bold text-2xl py-4 rounded-md">rtmp://live.chickeam.com/hls</p>
+            <p className="bg-gray-200 text-center w-full font-bold text-2xl py-4 rounded-md">rtmp://localhost:1935/stream</p>
           </div>
 
           <div className="mt-6">

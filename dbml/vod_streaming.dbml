@@ -2,9 +2,9 @@
 //// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 //// ------------------------------------------------------
 
-Project "Project Name" {
+Project "VOD Streaming" {
   database_type: 'PostgreSQL'
-  Note: 'Test project description'
+  Note: 'ERDiagram VOD Streaming'
 }
 
 Table users {
@@ -24,6 +24,11 @@ Table users {
   comment comments [not null]
   post Posts [not null]
   love_log Love_log [not null]
+  view_log View_log [not null]
+  followers Followers [not null]
+  following Followers [not null]
+  purchase Purchase [not null]
+  report Report [not null]
 }
 
 Table videos {
@@ -36,7 +41,8 @@ Table videos {
   price_sell Float
   Love_count Int
   slug String [unique]
-  path String
+  path String [unique]
+  view_count Int [default: 0]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   OwnerUserID String [not null]
@@ -44,19 +50,26 @@ Table videos {
   comment comments [not null]
   post Posts [not null]
   love_log Love_log [not null]
+  view_log View_log [not null]
+  purchase Purchase [not null]
+  report Report [not null]
 }
 
 Table comments {
   id String [pk]
   comment String
   userId String [not null]
-  videoId String [not null]
+  videoId String
+  postId String
+  type Int
   Love_count Int
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   love_log Love_log [not null]
+  report Report [not null]
   user users [not null]
-  video videos [not null]
+  video videos
+  post Posts
 }
 
 Table Posts {
@@ -68,6 +81,8 @@ Table Posts {
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   love_log Love_log [not null]
+  comment comments [not null]
+  report Report [not null]
   user users [not null]
   video videos
 }
@@ -85,6 +100,55 @@ Table Love_log {
   video videos
   post Posts
   comment comments
+}
+
+Table Report {
+  id String [pk]
+  userId String [not null]
+  videoId String
+  postId String
+  commentId String
+  type Int
+  reason String [not null]
+  text String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  video videos
+  post Posts
+  comment comments
+}
+
+Table View_log {
+  id String [pk]
+  userId String [not null]
+  videoId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  video videos [not null]
+}
+
+Table Purchase {
+  id String [pk]
+  userId String [not null]
+  videoId String [not null]
+  type Int [not null]
+  expire_date DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  video videos [not null]
+}
+
+Table Followers {
+  id String [pk]
+  userId String [not null]
+  followerUserId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  user users [not null]
+  follower users [not null]
 }
 
 Table accounts {
@@ -136,7 +200,9 @@ Ref: videos.OwnerUserID > users.id [delete: Cascade]
 
 Ref: comments.userId > users.id [delete: Cascade]
 
-Ref: comments.videoId > videos.id [delete: Cascade]
+Ref: comments.videoId > videos.id [delete: Set Null]
+
+Ref: comments.postId > Posts.id [delete: Set Null]
 
 Ref: Posts.userId > users.id [delete: Cascade]
 
@@ -149,6 +215,26 @@ Ref: Love_log.videoId > videos.id [delete: Set Null]
 Ref: Love_log.postId > Posts.id [delete: Set Null]
 
 Ref: Love_log.commentId > comments.id [delete: Set Null]
+
+Ref: Report.userId > users.id [delete: Cascade]
+
+Ref: Report.videoId > videos.id [delete: Set Null]
+
+Ref: Report.postId > Posts.id [delete: Set Null]
+
+Ref: Report.commentId > comments.id [delete: Set Null]
+
+Ref: View_log.userId > users.id [delete: Cascade]
+
+Ref: View_log.videoId > videos.id [delete: Cascade]
+
+Ref: Purchase.userId > users.id [delete: Cascade]
+
+Ref: Purchase.videoId > videos.id [delete: Cascade]
+
+Ref: Followers.userId > users.id [delete: Cascade]
+
+Ref: Followers.followerUserId > users.id [delete: Cascade]
 
 Ref: accounts.userId > users.id [delete: Cascade]
 

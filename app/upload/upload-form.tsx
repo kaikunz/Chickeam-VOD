@@ -21,7 +21,7 @@ export function generateRandomString(length: number = 7): string {
 
 
 
-const VideoUploadForm = () => {
+const UploadForm = () => {
   const router = useRouter();
   const [slug, setSlug] = useState<string | null>(null);
   const [path, setPath] = useState<string | null>(null);
@@ -67,7 +67,7 @@ const VideoUploadForm = () => {
   };
 
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const Uploadvideo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     
@@ -141,7 +141,7 @@ const VideoUploadForm = () => {
     }
   };
 
-  const UpdateVideoData = async (e: React.FormEvent<HTMLFormElement>) => {
+  const UpdateVideo = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formDatas = new FormData();
@@ -194,7 +194,7 @@ const VideoUploadForm = () => {
           </label>
       </div>  */}
 
-        <form className="lg:w-1/2 w-full mx-auto" id="formupload" onSubmit={handleSubmit}>
+        <form className="lg:w-1/2 w-full mx-auto" id="formupload" onSubmit={Uploadvideo}>
         
         {/* <input
             type="file"
@@ -240,7 +240,7 @@ const VideoUploadForm = () => {
 
       <div id="videoarea" className="flex justify-center"></div>
 
-      <form className="lg:w-1/2 w-full mx-auto mt-6 hidden" id="formvideo" onSubmit={UpdateVideoData}>
+      <form className="lg:w-1/2 w-full mx-auto mt-6 hidden" id="formvideo" onSubmit={UpdateVideo}>
       <p className="text-gray-600 mb-3">ชื่อวิดีโอ</p>
         <input
             type="text"
@@ -315,4 +315,4 @@ const VideoUploadForm = () => {
   );
 };
 
-export default VideoUploadForm;
+export default UploadForm;
